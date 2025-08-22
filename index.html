@@ -18,6 +18,7 @@
       color: #fff;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       overflow-x: hidden;
@@ -67,6 +68,17 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.3);
     }
 
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      opacity: 0.8;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: fadeIn 1.8s ease-in-out;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -94,5 +106,9 @@
       </li>
     </ul>
   </div>
+
+  <footer>
+    Dibuat oleh <strong>M. Alfi Syuhadak</strong>
+  </footer>
 </body>
 </html>
