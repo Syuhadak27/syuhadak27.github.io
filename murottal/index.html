@@ -1,69 +1,204 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pemutar Murottal</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pemutar Murottal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 450px;
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-weight: 500;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    select {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    select:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    option {
+      color: #000;
+    }
+
+    button {
+      background: #ffce00;
+      color: #222;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    button:hover {
+      background: #ffd633;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    audio {
+      width: 100%;
+      margin: 15px 0;
+      border-radius: 12px;
+      outline: none;
+    }
+
+    /* Progress bar */
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+      position: relative;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #ffce00;
+      border-radius: 5px;
+      transition: width 0.2s linear;
+    }
+
+    .time-display {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 25px;
+      text-align: center;
+      font-size: 0.85rem;
+      opacity: 0.8;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 12px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: fadeIn 1.8s ease-in-out;
+    }
+
+    .footer p {
+      margin-top: 5px;
+      font-size: 0.8rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Pemutar Murottal</h2>
+  <div class="container">
+    <h2>🎧 Pemutar Murottal</h2>
 
-        <!-- Pilihan Mode (Juz atau Surah) -->
-        <label for="mode">Pilih Mode:</label>
-        <select id="mode" onchange="updateSelection()">
-            
-            <option value="surah">Surah</option>
-            <option value="juz">Juz</option>
-        </select>
+    <!-- Pilihan Mode (Juz atau Surah) -->
+    <label for="mode">Pilih Mode:</label>
+    <select id="mode" onchange="updateSelection()">
+      <option value="surah">Surah</option>
+      <option value="juz">Juz</option>
+    </select>
 
-        <!-- Pilihan Qari' untuk Juz -->
-        <div id="qariJuzContainer">
-            <label for="qariJuz">Pilih Qari (Juz):</label>
-            <select id="qariJuz">
-                <option value="sudais">Abdurrahman Sudais</option>
-                <option value="mishary">Mishary Rasyid</option>
-                <option value="dosari">Yasser Al-Dosari</option>
-                <option value="HanyAr-Rifai">Hany Ar-Rifai</option>
-                <option value="Shuraim">Saud Al Shuraim</option>
-                <option value="SaadAl-Ghamidi">Saad Al-Ghamidi</option>
-            </select>
-        </div>
-
-        <!-- Pilihan Qari' untuk Surah -->
-        <div id="qariSurahContainer" style="display: none;">
-            <label for="qariSurah">Pilih Qari (Surah):</label>
-            <select id="qariSurah">
-                <option value="sudais">Abdurrahman Sudais</option>
-                
-            </select>
-        </div>
-
-        <!-- Pilihan Juz/Surah (dinamis) -->
-        <label for="selection">Pilih:</label>
-        <select id="selection"></select>
-
-        <button onclick="playAudio()">Putar</button>
-        <br>
-        <audio id="audioPlayer" controls></audio>
-
-        <!-- Progress Bar -->
-        <div class="progress-container" onclick="seekAudio(event)">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <div class="time-display">
-            <span id="currentTime">00:00</span>
-            <span id="duration">00:00</span>
-        </div>
+    <!-- Pilihan Qari' untuk Juz -->
+    <div id="qariJuzContainer">
+      <label for="qariJuz">Pilih Qari (Juz):</label>
+      <select id="qariJuz">
+        <option value="sudais">Abdurrahman Sudais</option>
+        <option value="mishary">Mishary Rasyid</option>
+        <option value="dosari">Yasser Al-Dosari</option>
+        <option value="HanyAr-Rifai">Hany Ar-Rifai</option>
+        <option value="Shuraim">Saud Al Shuraim</option>
+        <option value="SaadAl-Ghamidi">Saad Al-Ghamidi</option>
+      </select>
     </div>
+
+    <!-- Pilihan Qari' untuk Surah -->
+    <div id="qariSurahContainer" style="display: none;">
+      <label for="qariSurah">Pilih Qari (Surah):</label>
+      <select id="qariSurah">
+        <option value="sudais">Abdurrahman Sudais</option>
+      </select>
+    </div>
+
+    <!-- Pilihan Juz/Surah (dinamis) -->
+    <label for="selection">Pilih:</label>
+    <select id="selection"></select>
+
+    <button onclick="playAudio()">▶️ Putar</button>
     
-    <!-- Footer -->
-    <div class="footer">
-        &copy; 2025 - Pemutar Murottal | Sumber: Archive.org
-        <p>Dibuat dengan ♥️ oleh M. Alfi Syuhadak</p>
-    </div>
+    <audio id="audioPlayer" controls></audio>
 
-    <script src="script.js"></script>
+    <!-- Progress Bar -->
+    <div class="progress-container" onclick="seekAudio(event)">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="time-display">
+      <span id="currentTime">00:00</span>
+      <span id="duration">00:00</span>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <div class="footer">
+    &copy; 2025 - Pemutar Murottal | Sumber: Archive.org
+    <p>Dibuat dengan ♥️ oleh <strong>M. Alfi Syuhadak</strong></p>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
