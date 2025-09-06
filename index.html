@@ -2,66 +2,145 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pemutar Murottal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cari Data Produk</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+
+  </style>
 </head>
 <body>
   <div class="container">
-    <h2>🎧 Pemutar Murottal</h2>
-
-    <!-- Pilihan Mode (Juz atau Surah) -->
-    <label for="mode">Pilih Mode:</label>
-    <select id="mode" onchange="updateSelection()">
-      <option value="surah">Surah</option>
-      <option value="juz">Juz</option>
-    </select>
-
-    <!-- Pilihan Qari' untuk Juz -->
-    <div id="qariJuzContainer">
-      <label for="qariJuz">Pilih Qari (Juz):</label>
-      <select id="qariJuz">
-        <option value="sudais">Abdurrahman Sudais</option>
-        <option value="mishary">Mishary Rasyid</option>
-        <option value="dosari">Yasser Al-Dosari</option>
-        <option value="HanyAr-Rifai">Hany Ar-Rifai</option>
-        <option value="Shuraim">Saud Al Shuraim</option>
-        <option value="SaadAl-Ghamidi">Saad Al-Ghamidi</option>
-      </select>
+    <div class="banner">
+      <div id="digitalClock" class="clock-container"></div>
+      <marquee id="marqueeText" behavior="scroll" direction="left">
+        📊 Data selalu up-to-date! 🔄 Sinkronisasi otomatis dengan Google Sheets!
+        🌐 Akses Secara offline di mana saja, kapan saja!
+      </marquee>
     </div>
 
-    <!-- Pilihan Qari' untuk Surah -->
-    <div id="qariSurahContainer" style="display: none;">
-      <label for="qariSurah">Pilih Qari (Surah):</label>
-      <select id="qariSurah">
-        <option value="sudais">Abdurrahman Sudais</option>
-      </select>
+    <div class="card">
+      <input type="text" id="searchInput" placeholder="Masukkan Nama Barang........" onkeypress="handleEnter(event)">
+      <small id="warningText" style="color: rgb(10, 130, 199); display: none; font-size: 13px;">
+        Kata kunci minimal 3 karakter.
+      </small>
+      <div class="button-group">
+        <button class="clear" onclick="clearSearch()">Clear</button>
+        <button onclick="cari()">Cari</button>
+        <button class="clear" onclick="search_inout()">Inout</button>
+        <button class="clear" onclick="search_stok()">Stok</button>
+        <button class="clear" onclick="list()">List</button>
+        <button class="reset" onclick="APP.resetAllWithTimestamp()">reset</button>
+        <!-- <button onclick="toggleDarkMode()">🌙</button> -->
+      </div>
     </div>
 
-    <!-- Pilihan Juz/Surah (dinamis) -->
-    <label for="selection">Pilih:</label>
-    <select id="selection"></select>
+    <p id="result" class="card_result">
+      <!-- Hasil pencarian akan ditampilkan di sini -->
+    </p>
 
-    <button onclick="playAudio()">▶️ Putar</button>
-    
-    <audio id="audioPlayer" controls></audio>
-
-    <!-- Progress Bar -->
-    <div class="progress-container" onclick="seekAudio(event)">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="time-display">
-      <span id="currentTime">00:00</span>
-      <span id="duration">00:00</span>
-    </div>
   </div>
+
+  <footer>
+    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
+    <p id="resetTimestamp">Terakhir direset pada: -</p>
+  </footer>
   
-  <!-- Footer -->
-  <div class="footer">
-    &copy; 2025 - Pemutar Murottal | Sumber: Archive.org
-    <p>Dibuat dengan ♥️ oleh <strong>M. Alfi Syuhadak</strong></p>
+  <!-- Overlay progress -->
+  <div id="progressOverlay">
+    <div class="loader"></div>
+    <p>⏳ Mereset data...</p>
   </div>
 
+  <script>
+      // Tampilkan timestamp saat load
+    window.addEventListener("load", () => {
+      const lastReset = localStorage.getItem("lastReset");
+      if (lastReset) {
+        document.getElementById("resetTimestamp").textContent = lastReset;
+      }
+    });
+
+    // Fungsi reset dengan spinner
+    function Reset_semua_Data() {
+      const overlay = document.getElementById("progressOverlay");
+      overlay.style.display = "flex"; // tampilkan progres
+
+      setTimeout(() => {
+        // hapus semua data lokal
+        localStorage.clear();
+
+        // simpan timestamp baru
+        const now = new Date();
+        const timestamp = "Terakhir direset pada: " + now.toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "short"
+        });
+
+        localStorage.setItem("lastReset", timestamp);
+        document.getElementById("resetTimestamp").textContent = timestamp;
+
+        // hilangkan progres
+        overlay.style.display = "none";
+
+        alert("✅ Data berhasil direset!");
+      }, 1500); // simulasi 1,5 detik
+    }
+
+    // Fungsi Dark Mode
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      document.querySelector('button[onclick="toggleDarkMode()"]').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    // Fungsi Pencarian Dasar
+    function handleEnter(event) {
+      if (event.key === "Enter") cari();
+    }
+
+    let debounceTimeout;
+    document.getElementById("searchInput").addEventListener("input", function () {
+      clearTimeout(debounceTimeout);
+      const query = this.value.trim();
+      const warningText = document.getElementById("warningText");
+      const resultContainer = document.getElementById("result");
+
+      if (query === "") {
+        warningText.style.display = "none";
+        resultContainer.innerHTML = "";
+        return;
+      }
+
+      if (query.length < 3) {
+        warningText.style.display = "block";
+        resultContainer.innerHTML = "";
+        return;
+      }
+
+      warningText.style.display = "none";
+      debounceTimeout = setTimeout(() => {
+        cari();
+      }, 300);
+    });
+
+    // Placeholder fungsi pencarian
+    function cari() { console.log("Mencari..."); }
+    function clearSearch() { document.getElementById('searchInput').value = ''; }
+    function search_inout() { console.log("Inout..."); }
+    function search_stok() { console.log("Stok..."); }
+    function list() { console.log("Stok..."); }
+
+  </script>
+
+  <!-- Script eksternal -->
+  <script src="config.js"></script>
   <script src="script.js"></script>
+  <script src="reset.js"></script>
+  <script src="inout.js"></script>
+  <script src="cari.js"></script>
+  <script src="stok.js"></script>
+  <script src="list.js"></script>
 </body>
 </html>
