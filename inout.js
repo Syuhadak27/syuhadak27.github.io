@@ -1,33 +1,27 @@
-// Simpan & ambil data dari cache
-async function simpanKeCache_INOUT(url, data) {
-  const cache = await caches.open("inout-cache");
-  await cache.put(url, new Response(JSON.stringify(data)));
+// ===== Simpan & ambil data dari localStorage =====
+function simpanKeLocal_INOUT(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-async function ambilDariCache_INOUT(url) {
-  const cache = await caches.open("inout-cache");
-  const response = await cache.match(url);
-  if (response) {
-    return await response.json();
-  }
-  return [];
+function ambilDariLocal_INOUT(key) {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : [];
 }
 
-// Refresh data dari API & simpan ke cache
+// ===== Refresh data dari API & simpan ke localStorage =====
 async function resetDataInout() {
   try {
     if (!navigator.onLine) {
       throw new Error("Tidak ada koneksi internet. Silakan cek jaringan Anda.");
     }
 
-    // Tampilkan pesan loading
     document.getElementById("result").innerHTML =
       "<p style='text-align:center;'>🔄 Data sedang diperbarui...</p>";
 
-    const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:f`;
+    const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:F`;
     console.log("Fetching dari URL:", url);
 
-    const response = await fetch(url, { method: "GET" });
+    const response = await fetch(url);
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Gagal fetch: ${response.status} - ${errorText}`);
@@ -38,9 +32,9 @@ async function resetDataInout() {
       throw new Error("Format data dari API tidak valid.");
     }
 
-    // Simpan ke cache
-    await simpanKeCache_INOUT(url, json);
-    console.log("Data tersimpan di cache:", json.length);
+    // Simpan ke localStorage
+    simpanKeLocal_INOUT("inout-data", json);
+    console.log("Data tersimpan di localStorage:", json.length);
 
     showToast("✅ Data INOUT berhasil diupdate!");
     document.getElementById("result").innerHTML = "";
@@ -57,30 +51,26 @@ async function resetDataInout() {
   }
 }
 
-/// Cari data di cache sesuai keyword
+// ===== Cari data di localStorage sesuai keyword =====
 async function search_inout() {
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   const resultContainer = document.getElementById("result");
-  const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:F`;
 
-  // Ambil data dari cache
-  const data = await ambilDariCache_INOUT(url);
-
-  // Jika cache kosong
-  if (!data || data.length === 0) {
-    resultContainer.innerHTML = `
-      <div class="error">
-        <p>⚠️ Data INOUT belum tersedia di cache.</p>
-        <button onclick="resetDataInout()">Muat Data</button>
-      </div>
-    `;
-    console.log("Cache kosong, user harus klik 'Muat Data'.");
+  if (!query) {
+    resultContainer.innerHTML = "<p class='error'>❌ Masukkan kata kunci pencarian.</p>";
     return;
   }
 
-  // Jika query kosong
-  if (!query) {
-    resultContainer.innerHTML = "<p class='error'>❌ Masukkan kata kunci pencarian.</p>";
+  const data = ambilDariLocal_INOUT("inout-data");
+
+  if (!data || data.length === 0) {
+    resultContainer.innerHTML = `
+      <div class="error">
+        <p>❌ Data INOUT belum tersedia.</p>
+        <button onclick="resetDataInout()">Muat Data</button>
+      </div>
+    `;
+    console.log("Data INOUT kosong, meminta reset.");
     return;
   }
 
@@ -102,6 +92,7 @@ async function search_inout() {
   hasil.forEach(row => {
     let masuk = parseInt(row[3]?.replace(/\D/g, ""), 10) || 0;
     let keluar = parseInt(row[4]?.replace(/\D/g, ""), 10) || 0;
+
     totalMasuk += masuk;
     totalKeluar += keluar;
   });
@@ -156,24 +147,10 @@ async function search_inout() {
   resultContainer.innerHTML = html;
 }
 
-/// Inisialisasi data saat aplikasi dimulai
-window.onload = async function() {
-  const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:F`;
-  const data = await ambilDariCache_INOUT(url);
-
+// ===== Inisialisasi data saat aplikasi dimulai =====
+window.onload = function() {
+  const data = ambilDariLocal_INOUT("inout-data");
   if (!data || data.length === 0) {
-    // Jangan otomatis fetch API
-    document.getElementById("result").innerHTML = `
-      <div class="error">
-        <p>⚠️ Data INOUT belum tersedia di cache.</p>
-        <button onclick="resetDataInout()">Muat Data</button>
-      </div>
-    `;
-    console.log("Cache kosong, tunggu user klik reset.");
-  } else {
-    console.log("Data INOUT ditemukan di cache:", data.length);
-    document.getElementById("result").innerHTML = `
-      <p style="text-align:center;">✅ Data INOUT tersedia di cache (${data.length} baris).</p>
-    `;
+    console.log("Belum ada data INOUT di localStorage, silakan klik reset.");
   }
 };
