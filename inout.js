@@ -57,28 +57,30 @@ async function resetDataInout() {
   }
 }
 
-// Cari data di cache sesuai keyword
+/// Cari data di cache sesuai keyword
 async function search_inout() {
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   const resultContainer = document.getElementById("result");
+  const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:F`;
 
-  if (!query) {
-    resultContainer.innerHTML = "<p class='error'>❌ Masukkan kata kunci pencarian.</p>";
-    return;
-  }
-
-  const url =
-    "https://script.google.com/macros/s/AKfycbw8Qnf1FLZSH3I9CN4HopzEvDAP7qwf4rTDq5R4-9bwvZrGV1R3GFjkuNejBKykkdnokA/exec?sheet=inout&range=A2:F";
+  // Ambil data dari cache
   const data = await ambilDariCache_INOUT(url);
 
+  // Jika cache kosong
   if (!data || data.length === 0) {
     resultContainer.innerHTML = `
       <div class="error">
-        <p>❌ Data INOUT belum tersedia.</p>
+        <p>⚠️ Data INOUT belum tersedia di cache.</p>
         <button onclick="resetDataInout()">Muat Data</button>
       </div>
     `;
-    console.log("Data INOUT kosong, meminta reset.");
+    console.log("Cache kosong, user harus klik 'Muat Data'.");
+    return;
+  }
+
+  // Jika query kosong
+  if (!query) {
+    resultContainer.innerHTML = "<p class='error'>❌ Masukkan kata kunci pencarian.</p>";
     return;
   }
 
@@ -100,7 +102,6 @@ async function search_inout() {
   hasil.forEach(row => {
     let masuk = parseInt(row[3]?.replace(/\D/g, ""), 10) || 0;
     let keluar = parseInt(row[4]?.replace(/\D/g, ""), 10) || 0;
-
     totalMasuk += masuk;
     totalKeluar += keluar;
   });
@@ -128,40 +129,51 @@ async function search_inout() {
         <tbody>`;
 
   hasil.forEach(row => {
-  let rawDate = row[0];
-  let formattedDate = rawDate;
+    let rawDate = row[0];
+    let formattedDate = rawDate;
 
-  if (rawDate) {
-    let d = new Date(rawDate);
-    if (!isNaN(d)) {
-      let day = String(d.getDate()).padStart(2, "0");
-      let month = String(d.getMonth() + 1).padStart(2, "0");
-      let year = d.getFullYear();
-      formattedDate = `${day}-${month}-${year}`;
+    if (rawDate) {
+      let d = new Date(rawDate);
+      if (!isNaN(d)) {
+        let day = String(d.getDate()).padStart(2, "0");
+        let month = String(d.getMonth() + 1).padStart(2, "0");
+        let year = d.getFullYear();
+        formattedDate = `${day}-${month}-${year}`;
+      }
     }
-  }
 
-  html += `<tr>
-    <td>${formattedDate}</td>
-    <td>${row[1]}</td>
-    <td>${row[2]}</td>
-    <td>${row[3]}</td>
-    <td>${row[4]}</td>
-    <td>${row[5]}</td>
-  </tr>`;
-});
+    html += `<tr>
+      <td>${formattedDate}</td>
+      <td>${row[1]}</td>
+      <td>${row[2]}</td>
+      <td>${row[3]}</td>
+      <td>${row[4]}</td>
+      <td>${row[5]}</td>
+    </tr>`;
+  });
 
   html += `</tbody></table></div>`;
   resultContainer.innerHTML = html;
 }
 
-// Inisialisasi data saat aplikasi dimulai
+/// Inisialisasi data saat aplikasi dimulai
 window.onload = async function() {
-  const url =
-    "https://script.google.com/macros/s/AKfycbw8Qnf1FLZSH3I9CN4HopzEvDAP7qwf4rTDq5R4-9bwvZrGV1R3GFjkuNejBKykkdnokA/exec?sheet=inout&range=A2:F";
+  const url = `${CONFIG.BASE_URL}?sheet=inout&range=A2:F`;
   const data = await ambilDariCache_INOUT(url);
 
   if (!data || data.length === 0) {
-    resetDataInout();
+    // Jangan otomatis fetch API
+    document.getElementById("result").innerHTML = `
+      <div class="error">
+        <p>⚠️ Data INOUT belum tersedia di cache.</p>
+        <button onclick="resetDataInout()">Muat Data</button>
+      </div>
+    `;
+    console.log("Cache kosong, tunggu user klik reset.");
+  } else {
+    console.log("Data INOUT ditemukan di cache:", data.length);
+    document.getElementById("result").innerHTML = `
+      <p style="text-align:center;">✅ Data INOUT tersedia di cache (${data.length} baris).</p>
+    `;
   }
 };

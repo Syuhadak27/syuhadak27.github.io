@@ -9,7 +9,7 @@ async function resetData_Stok() {
     }
 
 
-    const url = `${CONFIG.BASE_URL}?sheet=stok&range=A2:e`;
+    const url = `${CONFIG.BASE_URL}?sheet=stok&range=A2:f`;
     const response = await fetch(url);
 
     if (!response.ok) {
