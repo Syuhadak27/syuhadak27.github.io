@@ -19,15 +19,10 @@
   <div class="container">
     <div class="banner">
       <div id="digitalClock" class="clock-container"></div>
-      <marquee id="marqueeText" behavior="scroll" direction="left">
+      <marquee behavior="scroll" direction="left">
         📊 Data selalu up-to-date! 🔄 Sinkronisasi otomatis dengan Google Sheets!
-        🌐 Akses Secara offline di mana saja, kapan saja!
+        🌐 Akses secara offline di mana saja, kapan saja!
       </marquee>
-      <!-- Greeting + Logout -->
-      <div style="margin-top:10px; text-align:center;">
-        
-        
-      </div>
     </div>
 
     <div class="card">
@@ -41,36 +36,25 @@
         <button class="clear" onclick="search_inout()">Inout</button>
         <button class="clear" onclick="search_stok()">Stok</button>
         <button class="clear" onclick="list()">List</button>
-        <button class="reset" onclick="Reset_semua_Data()">reset</button>
+        <button class="reset" onclick="Reset_semua_Data()">Reset</button>
         <button onclick="exportToImage()">Print</button> 
-        
-        
       </div>
     </div>
 
-    <p id="result" class="card_result">
-      <!-- Hasil pencarian akan ditampilkan di sini -->
-    </p>
+    <p id="result" class="card_result"></p>
   </div>
 
   <footer>
-  <p id="resetTimestamp">Terakhir direset pada: -</p>
-  <p id="domainInfo" style="font-size:12px; color:gray;"></p>
-  <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
-  <p id="greeting" style="margin:5px 0; font-weight:bold;"></p><button id="logoutBtn" class="clear">Logout</button>
-  
-</footer>
+    <p id="resetTimestamp">Terakhir direset pada: -</p>
+    <p id="resetWarning" style="color:red; font-weight:bold; display:none;">
+      ⚠️ Data sudah lebih dari 24 jam sejak reset terakhir, silakan lakukan reset!
+    </p>
+    <p id="domainInfo" style="font-size:12px; color:gray;"></p>
+    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
+    <p id="greeting" style="margin:5px 0; font-weight:bold;"></p>
+    <button id="logoutBtn" class="clear">Logout</button>
+  </footer>
 
-<script>
-  // Tambahkan info domain di footer
-  document.addEventListener("DOMContentLoaded", () => {
-    const domain = window.location.hostname; // hanya domain
-    // const domain = window.location.href;  // kalau mau full URL
-    document.getElementById("domainInfo").textContent = 
-      "Akses via web browser :  " + domain;
-  });
-</script>
-  
   <!-- Overlay progress -->
   <div id="progressOverlay">
     <div class="loader"></div>
@@ -78,15 +62,52 @@
   </div>
 
   <script>
-    // Tampilkan timestamp saat load
-    window.addEventListener("load", () => {
-      const lastReset = localStorage.getItem("lastReset");
-      if (lastReset) {
-        document.getElementById("resetTimestamp").textContent = lastReset;
+    const TEST_MODE = false; // ubah ke false saat live
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Tambahkan info domain di footer
+      const domain = window.location.hostname;
+      document.getElementById("domainInfo").textContent = "Akses via web browser : " + domain;
+
+      // Tampilkan username login
+      document.getElementById("greeting").textContent = "Login sebagai: " + user;
+
+      // Ambil data reset terakhir
+      let lastReset = localStorage.getItem("lastReset");
+      let lastResetMs = localStorage.getItem("lastResetMs");
+
+      // Kalau belum ada, inisialisasi sekarang
+      if (!lastReset || !lastResetMs) {
+        const now = new Date();
+        lastReset = "Terakhir direset pada: " + now.toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "short"
+        });
+        lastResetMs = Date.now().toString();
+
+        localStorage.setItem("lastReset", lastReset);
+        localStorage.setItem("lastResetMs", lastResetMs);
       }
 
-      // Tampilkan username yg login
-      document.getElementById("greeting").textContent = "Login sebagai: " + user;
+      // Tampilkan timestamp
+      document.getElementById("resetTimestamp").textContent = lastReset;
+
+      // Hitung selisih waktu
+      const now = Date.now();
+      let diff = now - parseInt(lastResetMs, 10);
+
+      if (TEST_MODE) {
+        diff = 25 * 60 * 60 * 1000; // paksa seolah-olah sudah 25 jam
+      }
+
+      console.log("DEBUG lastResetMs:", lastResetMs);
+      console.log("DEBUG diff (ms):", diff);
+
+      // Jika lebih dari 24 jam → tampilkan warning
+      if (diff > 24 * 60 * 60 * 1000) {
+        document.getElementById("resetWarning").style.display = "block";
+        alert("⚠️ Data sudah lebih dari 24 jam sejak reset terakhir, silakan lakukan reset!");
+      }
     });
 
     // Tombol logout
@@ -98,10 +119,9 @@
     // Fungsi reset dengan spinner
     function Reset_semua_Data() {
       const overlay = document.getElementById("progressOverlay");
-      overlay.style.display = "flex"; // tampilkan progres
+      overlay.style.display = "flex";
 
       setTimeout(() => {
-        // hanya hapus data lain, jangan hapus login user
         const loggedUser = localStorage.getItem("loggedInUser");
         localStorage.clear();
         localStorage.setItem("loggedInUser", loggedUser);
@@ -113,31 +133,17 @@
         });
 
         localStorage.setItem("lastReset", timestamp);
+        localStorage.setItem("lastResetMs", Date.now().toString());
+
         document.getElementById("resetTimestamp").textContent = timestamp;
+        document.getElementById("resetWarning").style.display = "none";
 
         overlay.style.display = "none";
         alert("✅ Data berhasil direset!");
       }, 1500);
     }
 
-    // Fungsi Dark Mode
-  // Terapkan tema sesuai preferensi perangkat
-  function applyTheme(e) {
-    if (e.matches) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }
-
-  // Deteksi preferensi awal
-  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  applyTheme(mediaQuery);
-
-  // Update otomatis kalau user ubah setting sistem
-  mediaQuery.addEventListener("change", applyTheme);
-
-    // Fungsi Pencarian Dasar
+    // Fungsi pencarian dasar
     function handleEnter(event) {
       if (event.key === "Enter") cari();
     }
@@ -167,15 +173,12 @@
       }, 300);
     });
 
-    // Placeholder fungsi pencarian
+    // Placeholder fungsi
     function cari() { console.log("Mencari..."); }
     function clearSearch() { document.getElementById('searchInput').value = ''; }
     function search_inout() { console.log("Inout..."); }
     function search_stok() { console.log("Stok..."); }
-    function list() { console.log("Stok..."); }
-    
-    
-    
+    function list() { console.log("List..."); }
   </script>
 
   <script src="export.js"></script>
@@ -186,6 +189,5 @@
   <script src="cari.js"></script>
   <script src="stok.js"></script>
   <script src="list.js"></script>
-
 </body>
 </html>
