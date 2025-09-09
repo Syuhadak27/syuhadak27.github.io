@@ -5,70 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cari Data Produk</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* CSS Dasar */
-    .card {
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadowing: 0 2px 5px rgba(0, 0, 0, 0.1);
-      margin-top: 5px;
-      transition: background-color 0.3s;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #f8f9fa;
-      transition: background-color 0.3s, color 0.3s;
-    }
-    
-    /* Mode Gelap */
-    .dark-mode {
-      background-color: #1a1a1a;
-      color: #ffffff;
-    }
-    .dark-mode .banner {
-      background: linear-gradient(135deg, #333, #666);
-    }
-    .dark-mode .card {
-      background-color: #2c2c2c;
-      box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
-    }
-    .dark-mode #searchInput {
-      background-color: #333;
-      color: #fff;
-      border-color: #555;
-    }
-    .dark-mode .clear {
-      background-color: #444;
-      color: #fff;
-    }
-    .dark-mode button:not(.clear) {
-      background-color: #0a82c7;
-    }
-    .dark-mode .reset {
-      background-color: #dc3545;
-    }
-    .dark-mode footer {
-      background-color: #222;
-      color: #ccc;
-    }
-    .dark-mode marquee {
-      color: #ddd;
-    }
-
-    /* Efek perhatian tombol reset */
-    .reset.attention {
-      animation: blink 1s infinite;
-    }
-    @keyframes blink {
-      0%, 100% { background-color: #dc3545; color: #fff; }
-      50% { background-color: #ff0000; color: #fff; }
-    }
-  </style>
 </head>
 <body>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    // Cek login di awal
+    const user = localStorage.getItem("loggedInUser");
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <div class="container">
     <div class="banner">
       <div id="digitalClock" class="clock-container"></div>
@@ -76,6 +23,11 @@
         📊 Data selalu up-to-date! 🔄 Sinkronisasi otomatis dengan Google Sheets!
         🌐 Akses Secara offline di mana saja, kapan saja!
       </marquee>
+      <!-- Greeting + Logout -->
+      <div style="margin-top:10px; text-align:center;">
+        
+        
+      </div>
     </div>
 
     <div class="card">
@@ -89,8 +41,10 @@
         <button class="clear" onclick="search_inout()">Inout</button>
         <button class="clear" onclick="search_stok()">Stok</button>
         <button class="clear" onclick="list()">List</button>
-        <button class="reset" onclick="Reset_semua_Data()">Reset</button>
-        <button onclick="toggleDarkMode()">🌙</button>
+        <button class="reset" onclick="Reset_semua_Data()">reset</button>
+        <button onclick="exportToImage()">Print</button> 
+
+        
       </div>
     </div>
 
@@ -100,61 +54,77 @@
   </div>
 
   <footer>
-    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
+
     <p id="resetTimestamp">Terakhir direset pada: -</p>
+    <p id="greeting" style="margin:5px 0; font-weight:bold;"></p><button id="logoutBtn" class="clear">Logout</button>
+    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
   </footer>
   
+  <!-- Overlay progress -->
+  <div id="progressOverlay">
+    <div class="loader"></div>
+    <p>⏳ Mereset data...</p>
+  </div>
+
   <script>
-    // Fungsi Reset
-    function Reset_semua_Data() {
-      // contoh: hapus cache/hasil pencarian
-      localStorage.clear();
-
-      // simpan timestamp baru
-      const now = new Date();
-      const timestamp = "Terakhir direset pada: " + now.toLocaleString("id-ID", {
-        dateStyle: "full",
-        timeStyle: "short"
-      });
-
-      localStorage.setItem("lastReset", timestamp);
-      document.getElementById("resetTimestamp").textContent = timestamp;
-
-      alert("Data berhasil direset!");
-    }
-
-    // Saat halaman load
+    // Tampilkan timestamp saat load
     window.addEventListener("load", () => {
       const lastReset = localStorage.getItem("lastReset");
       if (lastReset) {
         document.getElementById("resetTimestamp").textContent = lastReset;
-
-        // cek apakah sudah > 5 jam
-        const lastResetTime = new Date(lastReset.replace("Terakhir direset pada: ", ""));
-        const now = new Date();
-        const diffInHours = (now - lastResetTime) / 1000 / 3600;
-
-        if (diffInHours > 5) {
-          const resetButton = document.querySelector(".reset");
-          resetButton.classList.add("attention");
-          resetButton.title = "Sudah lebih dari 5 jam, silakan reset data.";
-        }
       }
+
+      // Tampilkan username yg login
+      document.getElementById("greeting").textContent = "Login sebagai: " + user;
     });
 
-    // Fungsi Dark Mode
-    function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDark);
-      document.querySelector('button[onclick="toggleDarkMode()"]').textContent = isDark ? '☀️' : '🌙';
+    // Tombol logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    });
+
+    // Fungsi reset dengan spinner
+    function Reset_semua_Data() {
+      const overlay = document.getElementById("progressOverlay");
+      overlay.style.display = "flex"; // tampilkan progres
+
+      setTimeout(() => {
+        // hanya hapus data lain, jangan hapus login user
+        const loggedUser = localStorage.getItem("loggedInUser");
+        localStorage.clear();
+        localStorage.setItem("loggedInUser", loggedUser);
+
+        const now = new Date();
+        const timestamp = "Terakhir direset pada: " + now.toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "short"
+        });
+
+        localStorage.setItem("lastReset", timestamp);
+        document.getElementById("resetTimestamp").textContent = timestamp;
+
+        overlay.style.display = "none";
+        alert("✅ Data berhasil direset!");
+      }, 1500);
     }
 
-    // Restore dark mode
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark-mode');
-      document.querySelector('button[onclick="toggleDarkMode()"]').textContent = '☀️';
+    // Fungsi Dark Mode
+  // Terapkan tema sesuai preferensi perangkat
+  function applyTheme(e) {
+    if (e.matches) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
     }
+  }
+
+  // Deteksi preferensi awal
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  applyTheme(mediaQuery);
+
+  // Update otomatis kalau user ubah setting sistem
+  mediaQuery.addEventListener("change", applyTheme);
 
     // Fungsi Pencarian Dasar
     function handleEnter(event) {
@@ -192,9 +162,12 @@
     function search_inout() { console.log("Inout..."); }
     function search_stok() { console.log("Stok..."); }
     function list() { console.log("Stok..."); }
+    
+    
+    
   </script>
 
-  <!-- Script eksternal -->
+  <script src="export.js"></script>
   <script src="config.js"></script>
   <script src="script.js"></script>
   <script src="reset.js"></script>
@@ -202,5 +175,6 @@
   <script src="cari.js"></script>
   <script src="stok.js"></script>
   <script src="list.js"></script>
+
 </body>
 </html>
