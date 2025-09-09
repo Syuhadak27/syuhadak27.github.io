@@ -43,7 +43,7 @@
         <button class="clear" onclick="list()">List</button>
         <button class="reset" onclick="Reset_semua_Data()">reset</button>
         <button onclick="exportToImage()">Print</button> 
-
+        
         
       </div>
     </div>
@@ -54,11 +54,22 @@
   </div>
 
   <footer>
+  <p id="resetTimestamp">Terakhir direset pada: -</p>
+  <p id="domainInfo" style="font-size:12px; color:gray;"></p>
+  <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
+  <p id="greeting" style="margin:5px 0; font-weight:bold;"></p><button id="logoutBtn" class="clear">Logout</button>
+  
+</footer>
 
-    <p id="resetTimestamp">Terakhir direset pada: -</p>
-    <p id="greeting" style="margin:5px 0; font-weight:bold;"></p><button id="logoutBtn" class="clear">Logout</button>
-    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
-  </footer>
+<script>
+  // Tambahkan info domain di footer
+  document.addEventListener("DOMContentLoaded", () => {
+    const domain = window.location.hostname; // hanya domain
+    // const domain = window.location.href;  // kalau mau full URL
+    document.getElementById("domainInfo").textContent = 
+      "Akses via web browser :  " + domain;
+  });
+</script>
   
   <!-- Overlay progress -->
   <div id="progressOverlay">
