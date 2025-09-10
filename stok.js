@@ -24,7 +24,7 @@ async function resetData_Stok() {
     localStorage.setItem("hasil_stok", JSON.stringify(dataTanpaHeader));
 
     resultContainer.innerHTML = "";
-    showToast("✅ Data stok berhasil disimpan ke penyimpanan lokal!");
+    
     console.log("Data stok tersimpan:", dataTanpaHeader);
 
   } catch (error) {

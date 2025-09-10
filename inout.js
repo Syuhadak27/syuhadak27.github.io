@@ -36,7 +36,7 @@ async function resetDataInout() {
     simpanKeLocal_INOUT("inout-data", json);
     console.log("Data tersimpan di localStorage:", json.length);
 
-    showToast("✅ Data INOUT berhasil diupdate!");
+    
     document.getElementById("result").innerHTML = "";
     window.location.reload();
   } catch (error) {

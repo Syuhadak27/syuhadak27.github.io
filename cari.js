@@ -22,7 +22,7 @@ async function resetData() {
 
     localStorage.setItem("hasil_pencarian", JSON.stringify(dataTanpaHeader));
 
-    showToast("✅ Data berhasil disimpan ke penyimpanan lokal!");
+    
     console.log("Data tersimpan:", dataTanpaHeader);
 
   } catch (error) {

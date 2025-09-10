@@ -36,7 +36,7 @@
         <button class="clear" onclick="search_inout()">Inout</button>
         <button class="clear" onclick="search_stok()">Stok</button>
         <button class="clear" onclick="list()">List</button>
-        <button class="reset" onclick="Reset_semua_Data()">Reset</button>
+        
         <button onclick="exportToImage()">Print</button> 
       </div>
     </div>
@@ -52,7 +52,7 @@
     <p id="domainInfo" style="font-size:12px; color:gray;"></p>
     <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
     <p id="greeting" style="margin:5px 0; font-weight:bold;"></p>
-    <button id="logoutBtn" class="clear">Logout</button>
+    <button id="logoutBtn" class="clear">Logout</button><button class="reset" onclick="Reset_semua_Data()">Reset</button>
   </footer>
 
   <!-- Overlay progress -->
@@ -106,7 +106,15 @@
       // Jika lebih dari 24 jam → tampilkan warning
       if (diff > 24 * 60 * 60 * 1000) {
         document.getElementById("resetWarning").style.display = "block";
-        alert("⚠️ Data sudah lebih dari 24 jam sejak reset terakhir, silakan lakukan reset!");
+        Swal.fire({
+  icon: 'warning',
+  title: 'Data Kadaluarsa',
+  text: '⚠️Tekan Tombol Reset untuk update database, dan tunggu ±9detik agar data siap digunakan🥳🥳 ',
+  confirmButtonText: 'Okay',
+  confirmButtonColor: '#3085d6',
+  background: '#fff',
+  color: '#333'
+});
       }
     });
 
@@ -189,5 +197,6 @@
   <script src="cari.js"></script>
   <script src="stok.js"></script>
   <script src="list.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
