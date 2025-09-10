@@ -56,7 +56,7 @@ button:hover {
   transform: scale(1.03);
 }
 button { background: #4caf50; color: #fff; }
-button.clear { background: #f44336; }
+button.clear { background: #ffff00; }
 button.reset { background: #2196f3; }
 
 .banner {
@@ -203,7 +203,7 @@ footer {
 }
 
   button { background: #0a82c7; color: #fff; }
-  button.clear { background: #d9534f; }
+  button.clear { background: #ff0077; }
   button.reset { background: #0275d8; }
 
   .result-table th {

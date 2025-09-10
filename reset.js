@@ -55,9 +55,7 @@ async function Reset_semua_Data() {
       confirmButtonColor: "#3085d6",
       background: "#fff",
       color: "#333"
-    }).then(() => {
-      //location.reload(); // reload setelah user tekan OK
-    });
+    })
 
   } catch (error) {
     overlay.style.display = "none";
