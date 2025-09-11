@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cari Data Produk</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -49,13 +50,30 @@
     <p id="resetWarning" style="color:red; font-weight:bold; display:none;">
       ⚠️ Data sudah lebih dari 24 jam sejak reset terakhir, silakan lakukan reset!
     </p>
-    <p id="domainInfo" style="font-size:12px; color:gray;"></p>
-    <p><i>© 2025 - Dibuat dengan ❤️ oleh M. Alfi Syuhadak(@alfisyuhadak)</i></p>
+    
+    
     <p id="greeting" style="margin:5px 0; font-weight:bold;"></p>
     <button id="logoutBtn" class="clear">Logout</button>
     <button class="clear" onclick="confirmReset()">Reset</button>
   </footer>
   <audio id="notFoundSound" src="beep.mp3" preload="auto"></audio>
+  <p id="domainInfo" style="font-size:12px; color:gray; text-align: center;"></p>
+  <p style="font-size: 12px; color: green; text-align: center;">
+  <i>© 2025 - Dibuat oleh Muhamad Alfi Syuhadak</i>
+</p>
+<p style="font-size: 12px; color: gray; text-align: center;">
+  <a href="https://www.tiktok.com/@alfisyuhadak" target="_blank" style="color: red; text-decoration: none;">
+    <i class="fa-brands fa-tiktok"></i> @alfisyuhadak
+  </a>
+  &nbsp; | &nbsp;
+  <a href="https://github.com/syuhadak27" target="_blank" style="color: red; text-decoration: none;">
+    <i class="fa-brands fa-github"></i> syuhadak27
+  </a>
+  &nbsp; | &nbsp;
+  <a href="https://facebook.com/AlfiSyuhadak" target="_blank" style="color: red; text-decoration: none;">
+    <i class="fa-brands fa-facebook"></i> M. Alfi Syuhadak
+  </a>
+</p>
 
   <!-- Overlay progress -->
   <div id="progressOverlay">
