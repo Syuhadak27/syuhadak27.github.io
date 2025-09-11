@@ -50,7 +50,7 @@ Dibuat agar tetap bisa digunakan secara **offline** setelah data diambil dari Go
 - **Library & Tools**  
   - [SweetAlert2](https://sweetalert2.github.io/) → Pop-up modern untuk notifikasi & konfirmasi  
   - [html2canvas](https://html2canvas.hertzen.com/) → Export tampilan ke gambar  
-  - [Font Awesome](https://fontawesome.com/) → Icon TikTok & GitHub  
+  - [Font Awesome](https://fontawesome.com/) → Icon TikTok, GitHub & Facebook
 
 - **Storage**  
   - `localStorage` → Simpan cache data agar bisa dipakai offline  
