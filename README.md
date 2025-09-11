@@ -67,15 +67,6 @@ Dibuat agar tetap bisa digunakan secara **offline** setelah data diambil dari Go
 
 ---
 
-👨‍💻 Author
-
-Dibuat dengan ❤️ oleh M. Alfi Syuhadak
-
-
-
-
-
----
 
 📜 Lisensi
 
